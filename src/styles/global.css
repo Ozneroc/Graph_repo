@@ -1,0 +1,645 @@
+/*
+ * Global site styles. Colours and font stacks come from CSS variables that are
+ * generated from src/charts/theme.ts and inlined in the <head> by Layout.astro:
+ * --bg --surface --text --text-secondary --grid --accent --series-1..10
+ * --font-heading --font-body
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 6vw, 3rem);
+}
+
+h2 {
+  font-size: 1.35rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 10;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--grid);
+  border-radius: 6px;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* ------------------------------------------------------------------ header */
+
+.site-header {
+  border-bottom: 1px solid var(--grid);
+}
+
+.site-header .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1.5rem;
+  padding-block: 1rem;
+}
+
+.site-name {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.site-nav a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  padding-block: 0.25rem;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current='page'] {
+  color: var(--text);
+}
+
+.site-nav a[aria-current='page'] {
+  box-shadow: 0 2px 0 var(--accent);
+}
+
+/* -------------------------------------------------------------------- main */
+
+main {
+  flex: 1;
+  padding-block: 2.5rem 4rem;
+}
+
+.page-intro {
+  max-width: 44rem;
+  margin-bottom: 2.25rem;
+}
+
+.page-intro p {
+  margin-top: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 1.0625rem;
+}
+
+.eyebrow {
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.eyebrow a {
+  color: inherit;
+}
+
+/* ------------------------------------------------------------------ footer */
+
+.site-footer {
+  border-top: 1px solid var(--grid);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.site-footer .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding-block: 1.5rem;
+}
+
+.site-footer ul {
+  display: flex;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* -------------------------------------------------------------------- tags */
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 1.75rem;
+  padding: 0.1rem 0.7rem;
+  border: 1px solid var(--grid);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tag:hover {
+  border-color: var(--text-secondary);
+  color: var(--text);
+}
+
+.tag[aria-pressed='true'] {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--bg);
+}
+
+.tag-count {
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.tag-filter {
+  margin-bottom: 1.75rem;
+}
+
+.tag-filter .tag {
+  min-height: 2.25rem;
+  font-size: 0.875rem;
+}
+
+/* -------------------------------------------------------------- chart grid */
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 1.75rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chart-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--grid);
+  border-radius: 10px;
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.chart-card:hover {
+  border-color: var(--text-secondary);
+}
+
+.chart-card[hidden] {
+  display: none;
+}
+
+.chart-card-image {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  object-fit: cover;
+  border-bottom: 1px solid var(--grid);
+  background: var(--bg);
+}
+
+.chart-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem 1.1rem;
+}
+
+.chart-card-date {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.chart-card h2 {
+  font-size: 1.2rem;
+}
+
+.chart-card h2 a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* The whole card is clickable through the title link. */
+.chart-card h2 a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.chart-card h2 a:hover {
+  color: var(--accent);
+}
+
+.chart-card .tag-list {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+/* Tag links sit above the card-wide title link. */
+.chart-card .tag {
+  position: relative;
+}
+
+.draft-badge {
+  align-self: flex-start;
+  padding: 0.05rem 0.5rem;
+  border-radius: 4px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------- empty state */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3.5rem 1.5rem;
+  border: 1px dashed var(--grid);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.empty-state svg {
+  width: 7rem;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  max-width: 28rem;
+  color: var(--text-secondary);
+}
+
+/* -------------------------------------------------------------- chart page */
+
+.chart-header {
+  max-width: 52rem;
+  margin-bottom: 1.75rem;
+}
+
+.chart-header .subtitle {
+  margin-top: 0.6rem;
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  line-height: 1.45;
+}
+
+.chart-header .meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  min-height: 16rem;
+}
+
+.chart-container figure {
+  margin: 0;
+}
+
+.chart-container svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  /* Lets the page scroll vertically while a finger explores the chart. */
+  touch-action: pan-y;
+}
+
+.chart-container .chart-status {
+  display: grid;
+  place-items: center;
+  min-height: 16rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  text-align: center;
+}
+
+/* Plot: recessive axes and a solid, theme-coloured grid. */
+.chart-container [aria-label$='grid'] {
+  stroke: var(--grid);
+  stroke-opacity: 1;
+}
+
+.chart-container [aria-label$='axis tick label'],
+.chart-container [aria-label$='axis label'] {
+  fill: var(--text-secondary);
+}
+
+/* Titles and captions set through Plot's own `title` / `caption` options. */
+.chart-container figure h2 {
+  margin-bottom: 0.25rem;
+}
+
+.chart-container figure h3 {
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.chart-container figcaption {
+  margin-top: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  max-width: min(16rem, 80%);
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--grid);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.14);
+  color: var(--text);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.chart-tooltip[hidden] {
+  display: none;
+}
+
+.chart-tooltip-title {
+  display: block;
+  font-weight: 700;
+}
+
+.chart-tooltip dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.1rem 1rem;
+  margin: 0.3rem 0 0;
+}
+
+.chart-tooltip dt {
+  color: var(--text-secondary);
+}
+
+.chart-tooltip dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  text-align: right;
+}
+
+.chart-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.chart-source {
+  margin-top: 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.chart-source strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------- data table */
+
+.data-table {
+  margin-top: 1.5rem;
+  border-block: 1px solid var(--grid);
+}
+
+.data-table summary {
+  padding-block: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.data-table summary:hover {
+  color: var(--accent);
+}
+
+.table-scroll {
+  max-height: 28rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--grid);
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.data-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.45rem 0.8rem;
+  border-bottom: 1px solid var(--grid);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  box-shadow: 0 1px 0 var(--grid);
+  font-weight: 600;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.data-table .num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.data-table .table-note {
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* ------------------------------------------------------------------- prose */
+
+.prose {
+  max-width: 44rem;
+  margin-top: 2.5rem;
+}
+
+.prose > * + * {
+  margin-top: 1rem;
+}
+
+.prose h2 {
+  margin-top: 2.25rem;
+}
+
+.prose h3 {
+  margin-top: 1.75rem;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.25rem;
+}
+
+.prose li + li {
+  margin-top: 0.35rem;
+}
+
+.prose code {
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: var(--surface);
+  border: 1px solid var(--grid);
+  font-size: 0.9em;
+}
+
+.prose blockquote {
+  margin-inline: 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--grid);
+  color: var(--text-secondary);
+}
+
+.prose .placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+@media (max-width: 30rem) {
+  main {
+    padding-block: 1.75rem 3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

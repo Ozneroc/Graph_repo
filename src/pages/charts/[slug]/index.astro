@@ -1,0 +1,220 @@
+---
+import { render } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import {
+  assertChartModule,
+  formatDate,
+  getChartData,
+  getCharts,
+  tagSlug,
+  url,
+  type ChartEntry,
+} from '../../../lib/charts';
+
+export async function getStaticPaths() {
+  const charts = await getCharts();
+  return charts.map((chart) => {
+    assertChartModule(chart);
+    return { params: { slug: chart.id }, props: { chart, data: getChartData(chart) } };
+  });
+}
+
+interface Props {
+  chart: ChartEntry;
+  data: unknown;
+}
+
+const { chart, data } = Astro.props;
+const { title, subtitle, date, tags, source, redditUrl, preview, draft } = chart.data;
+const { Content } = await render(chart);
+const dataUrl = url(`charts/${chart.id}/data.json`);
+
+// The data table is shown only when data.json is a non-empty array of objects.
+type Row = Record<string, unknown>;
+const MAX_ROWS = 1000;
+const isRow = (value: unknown): value is Row =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+const rows: Row[] = Array.isArray(data) && data.length > 0 && data.every(isRow) ? data : [];
+const columns = [...new Set(rows.flatMap((row) => Object.keys(row)))];
+const shownRows = rows.slice(0, MAX_ROWS);
+const numericColumns = new Set(
+  columns.filter((column) =>
+    rows.every((row) => row[column] == null || typeof row[column] === 'number'),
+  ),
+);
+
+function formatCell(value: unknown): string {
+  if (value == null) return '';
+  if (typeof value === 'number') return value.toLocaleString('en-US', { maximumFractionDigits: 6 });
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+---
+
+<Layout title={title} description={subtitle} image={preview.src}>
+  <article>
+    <header class="chart-header">
+      <p class="eyebrow"><a href={url()}>All charts</a></p>
+      <h1>{title}</h1>
+      <p class="subtitle">{subtitle}</p>
+      <div class="meta">
+        {draft && <span class="draft-badge">Draft</span>}
+        <time datetime={date.toISOString().slice(0, 10)}>{formatDate(date)}</time>
+        {
+          tags.length > 0 && (
+            <ul class="tag-list" aria-label="Tags">
+              {tags.map((tag) => (
+                <li>
+                  <a class="tag" href={url(`tags/${tagSlug(tag)}/`)}>
+                    {tag}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </header>
+
+    <div
+      id="chart"
+      class="chart-container"
+      role="img"
+      aria-label={`${title}. ${subtitle}`}
+      data-chart={chart.data.chart}
+      data-src={dataUrl}
+    >
+      <noscript>
+        <img src={preview.src} width={preview.width} height={preview.height} alt="" />
+      </noscript>
+    </div>
+
+    <p class="chart-source"><strong>Source:</strong> {source}</p>
+
+    {
+      rows.length > 0 && (
+        <details class="data-table">
+          <summary>Show data table</summary>
+          <div class="table-scroll" tabindex="0" role="region" aria-label={`Data table: ${title}`}>
+            <table>
+              <thead>
+                <tr>
+                  {columns.map((column) => (
+                    <th scope="col" class={numericColumns.has(column) ? 'num' : undefined}>
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {shownRows.map((row) => (
+                  <tr>
+                    {columns.map((column) => (
+                      <td class={numericColumns.has(column) ? 'num' : undefined}>
+                        {formatCell(row[column])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {rows.length > MAX_ROWS && (
+            <p class="table-note">
+              Showing the first {MAX_ROWS.toLocaleString('en-US')} of{' '}
+              {rows.length.toLocaleString('en-US')} rows. Download the data for the full set.
+            </p>
+          )}
+        </details>
+      )
+    }
+
+    <ul class="chart-actions">
+      {
+        redditUrl && (
+          <li>
+            <a href={redditUrl}>Discuss on Reddit</a>
+          </li>
+        )
+      }
+      <li><a href={preview.src} download={`${chart.id}.png`}>Download image (PNG)</a></li>
+      <li><a href={dataUrl} download={`${chart.id}.json`}>Download data (JSON)</a></li>
+    </ul>
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Layout>
+
+<script>
+  import { getTheme, onThemeChange } from '../../../charts/theme';
+  import type { ChartModule } from '../../../charts/types';
+
+  // One lazy chunk per chart module: a page downloads only its own chart
+  // (and Observable Plot, which only chart modules import).
+  const modules = import.meta.glob<ChartModule>([
+    '/src/charts/*.ts',
+    '!/src/charts/theme.ts',
+    '!/src/charts/types.ts',
+  ]);
+
+  const container = document.getElementById('chart');
+
+  function showStatus(target: HTMLElement, message: string) {
+    const status = document.createElement('p');
+    status.className = 'chart-status';
+    status.textContent = message;
+    target.replaceChildren(status);
+  }
+
+  async function init(target: HTMLElement) {
+    const load = modules[`/src/charts/${target.dataset.chart}.ts`];
+    if (!load || !target.dataset.src) throw new Error('Chart module or data URL not found');
+
+    const [{ render }, data] = await Promise.all([
+      load(),
+      fetch(target.dataset.src).then((response) => {
+        if (!response.ok) throw new Error(`Could not load data (${response.status})`);
+        return response.json() as Promise<unknown>;
+      }),
+    ]);
+
+    let cleanup: void | (() => void);
+    let width = -1;
+
+    const draw = () => {
+      cleanup?.();
+      target.replaceChildren();
+      width = target.clientWidth;
+      cleanup = render(target, data, getTheme());
+    };
+
+    draw();
+
+    // Redraw when the available width changes (height changes are ignored,
+    // since drawing the chart itself changes the container's height).
+    let frame = 0;
+    const observer = new ResizeObserver(() => {
+      if (target.clientWidth === width) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(draw);
+    });
+    observer.observe(target);
+
+    const stopThemeListener = onThemeChange(draw);
+
+    window.addEventListener('pagehide', () => {
+      observer.disconnect();
+      stopThemeListener();
+      cleanup?.();
+    });
+  }
+
+  if (container) {
+    init(container).catch((error) => {
+      console.error(error);
+      showStatus(container, 'This chart could not be loaded. The data is still available below.');
+    });
+  }
+</script>

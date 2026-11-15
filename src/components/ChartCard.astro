@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+import { formatDate, tagSlug, url, type ChartEntry } from '../lib/charts';
+
+interface Props {
+  chart: ChartEntry;
+  /** Load the image eagerly (use for the first cards on a page). */
+  eager?: boolean;
+}
+
+const { chart, eager = false } = Astro.props;
+const { title, date, tags, preview, draft } = chart.data;
+---
+
+<article class="chart-card" data-tags={tags.map(tagSlug).join(' ')}>
+  <Image
+    class="chart-card-image"
+    src={preview}
+    alt=""
+    widths={[400, 800]}
+    sizes="(min-width: 72rem) 23rem, (min-width: 40rem) 50vw, 100vw"
+    loading={eager ? 'eager' : 'lazy'}
+  />
+  <div class="chart-card-body">
+    {draft && <span class="draft-badge">Draft</span>}
+    <time class="chart-card-date" datetime={date.toISOString().slice(0, 10)}>
+      {formatDate(date)}
+    </time>
+    <h2><a href={url(`charts/${chart.id}/`)}>{title}</a></h2>
+    {
+      tags.length > 0 && (
+        <ul class="tag-list" aria-label="Tags">
+          {tags.map((tag) => (
+            <li>
+              <a class="tag" href={url(`tags/${tagSlug(tag)}/`)}>
+                {tag}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</article>

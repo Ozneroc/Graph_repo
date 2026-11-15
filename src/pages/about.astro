@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { GITHUB_URL, REDDIT_URL, REDDIT_USER } from '../consts';
+---
+
+<Layout title="About" description="About this collection of charts.">
+  <header class="page-intro">
+    <h1>About</h1>
+  </header>
+
+  <div class="prose" style="margin-top: 0">
+    <!-- TODO: replace the placeholder paragraphs below with your own text. -->
+    <p class="placeholder">
+      Placeholder: who you are and why you make these charts.
+    </p>
+    <p class="placeholder">
+      Placeholder: how the charts are made (tools, where the data comes from, how often you post).
+    </p>
+
+    <h2>Reuse</h2>
+    <p class="placeholder">
+      Placeholder: how others may reuse the charts and the data (license, attribution).
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Find me on Reddit as <a href={REDDIT_URL}>{REDDIT_USER}</a>. The code and data for this site
+      are on <a href={GITHUB_URL}>GitHub</a>.
+    </p>
+  </div>
+</Layout>

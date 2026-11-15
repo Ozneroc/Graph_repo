@@ -1,0 +1,82 @@
+---
+import '@fontsource/oswald/700.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '../styles/global.css';
+import { themeCss, lightTheme, darkTheme } from '../charts/theme';
+import { url } from '../lib/charts';
+import {
+  SITE_TITLE,
+  SITE_DESCRIPTION,
+  GITHUB_URL,
+  REDDIT_URL,
+  REDDIT_USER,
+} from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Absolute or base-relative URL of an image for link previews. */
+  image?: string;
+}
+
+const { title, description = SITE_DESCRIPTION, image } = Astro.props;
+const pageTitle = title ? `${title} | ${SITE_TITLE}` : SITE_TITLE;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const path = Astro.url.pathname;
+const nav = [
+  { href: url(), label: 'Charts', current: path === url() || path.startsWith(url('charts/')) },
+  { href: url('about/'), label: 'About', current: path.startsWith(url('about/')) },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={url('favicon.svg')} />
+    <meta name="theme-color" content={lightTheme.colors.background} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={darkTheme.colors.background} media="(prefers-color-scheme: dark)" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    {image && <meta property="og:image" content={new URL(image, Astro.site)} />}
+    <style is:inline set:html={themeCss()} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="site-name" href={url()}>{SITE_TITLE}</a>
+        <nav class="site-nav" aria-label="Main">
+          {
+            nav.map((item) => (
+              <a href={item.href} aria-current={item.current ? 'page' : undefined}>
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>Charts by {REDDIT_USER}. Data and code are open.</p>
+        <ul>
+          <li><a href={GITHUB_URL}>GitHub</a></li>
+          <li><a href={REDDIT_URL}>Reddit ({REDDIT_USER})</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>

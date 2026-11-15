@@ -1,0 +1,41 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ChartCard from '../../components/ChartCard.astro';
+import { getCharts, getTags, tagSlug, url, type ChartEntry, type TagInfo } from '../../lib/charts';
+
+export async function getStaticPaths() {
+  const charts = await getCharts();
+  return getTags(charts).map((tag) => ({
+    params: { tag: tag.slug },
+    props: {
+      tag,
+      charts: charts.filter((chart) => chart.data.tags.some((t) => tagSlug(t) === tag.slug)),
+    },
+  }));
+}
+
+interface Props {
+  tag: TagInfo;
+  charts: ChartEntry[];
+}
+
+const { tag, charts } = Astro.props;
+---
+
+<Layout title={`${tag.label} charts`} description={`Charts tagged "${tag.label}".`}>
+  <header class="page-intro">
+    <p class="eyebrow"><a href={url()}>All charts</a> / Tag</p>
+    <h1>{tag.label}</h1>
+    <p>{charts.length} {charts.length === 1 ? 'chart' : 'charts'} with this tag.</p>
+  </header>
+
+  <ul class="chart-grid">
+    {
+      charts.map((chart, i) => (
+        <li>
+          <ChartCard chart={chart} eager={i < 3} />
+        </li>
+      ))
+    }
+  </ul>
+</Layout>

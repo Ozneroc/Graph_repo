@@ -1,0 +1,101 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ChartCard from '../components/ChartCard.astro';
+import EmptyState from '../components/EmptyState.astro';
+import { getCharts, getTags } from '../lib/charts';
+import { SITE_TITLE, SITE_TAGLINE } from '../consts';
+
+const charts = await getCharts();
+const tags = getTags(charts);
+---
+
+<Layout>
+  <header class="page-intro">
+    <h1>{SITE_TITLE}</h1>
+    <p>{SITE_TAGLINE}</p>
+  </header>
+
+  {
+    charts.length === 0 ? (
+      <EmptyState />
+    ) : (
+      <>
+        {tags.length > 0 && (
+          <div class="tag-filter" role="group" aria-label="Filter charts by tag">
+            <ul class="tag-list">
+              <li>
+                <button class="tag" type="button" data-filter="" aria-pressed="true">
+                  All <span class="tag-count">{charts.length}</span>
+                </button>
+              </li>
+              {tags.map((tag) => (
+                <li>
+                  <button class="tag" type="button" data-filter={tag.slug} aria-pressed="false">
+                    {tag.label} <span class="tag-count">{tag.count}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <ul class="chart-grid" id="chart-grid">
+          {charts.map((chart, i) => (
+            <li>
+              <ChartCard chart={chart} eager={i < 3} />
+            </li>
+          ))}
+        </ul>
+        <p class="visually-hidden" id="filter-status" role="status" />
+      </>
+    )
+  }
+</Layout>
+
+<style>
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  // Client-side tag filter. The selected tag is kept in the URL (?tag=slug)
+  // so a filtered view can be shared and survives a reload.
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+  const items = [...document.querySelectorAll<HTMLLIElement>('#chart-grid > li')];
+  const status = document.getElementById('filter-status');
+
+  function applyFilter(slug: string, updateUrl: boolean) {
+    const known = buttons.some((button) => button.dataset.filter === slug);
+    const active = known ? slug : '';
+    let visible = 0;
+    for (const item of items) {
+      const tags = item.querySelector<HTMLElement>('[data-tags]')?.dataset.tags?.split(' ') ?? [];
+      const show = active === '' || tags.includes(active);
+      item.hidden = !show;
+      if (show) visible += 1;
+    }
+    for (const button of buttons) {
+      button.setAttribute('aria-pressed', String(button.dataset.filter === active));
+    }
+    if (status) status.textContent = `${visible} ${visible === 1 ? 'chart' : 'charts'} shown`;
+    if (updateUrl) {
+      const next = new URL(window.location.href);
+      if (active) next.searchParams.set('tag', active);
+      else next.searchParams.delete('tag');
+      history.replaceState(null, '', next);
+    }
+  }
+
+  if (buttons.length > 0) {
+    for (const button of buttons) {
+      button.addEventListener('click', () => applyFilter(button.dataset.filter ?? '', true));
+    }
+    const initial = new URLSearchParams(window.location.search).get('tag');
+    if (initial) applyFilter(initial, false);
+  }
+</script>

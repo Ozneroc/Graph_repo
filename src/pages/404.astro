@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import EmptyState from '../components/EmptyState.astro';
+import { url } from '../lib/charts';
+---
+
+<Layout title="Page not found">
+  <EmptyState title="Page not found" message="This page is off the chart. It may have moved or never existed." />
+  <p style="margin-top: 1.5rem; text-align: center">
+    <a href={url()}>Back to all charts</a>
+  </p>
+</Layout>

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init *)",
+      "Bash(node -e \"const p=require\\('./node_modules/astro/package.json'\\);console.log\\(p.version,p.engines,Object.keys\\(p.exports\\).join\\(' '\\)\\)\")",
+      "Bash(node scripts/validate_palette.js \"#3987e5,#d95926,#199e70,#c98500,#d55181,#0ca30c,#9085e9,#e66767,#b98452,#a3a29b\" --mode dark --surface \"#1a1a19\")",
+      "Bash(node scripts/validate_palette.js --help)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/zod/package.json'\\).version\\)\")",
+      "Bash(grep -v \"^\\\\-\\\\-$\")",
+      "Bash(npx astro *)"
+    ]
+  }
+}
